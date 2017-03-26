@@ -1,5 +1,7 @@
 require 'kitchen/provisioner/base'
 require 'fileutils'
+require 'yaml'
+require 'json'
 
 module Kitchen
   module Provisioner
@@ -11,44 +13,42 @@ module Kitchen
 
       def create_sandbox
         super
-        {
-          state_tree_source => state_tree_destination,
-          pillar_roots_source => pillar_roots_destination,
-          minion_config_source => minion_config_destination
-        }.each { |src, dest| cp(src, dest) }
+        pave
+        copy_state_tree
+        copy_minion_config if config[:minion_config]
+      end
+
+      def run_command
+        [
+          'sudo salt-call --local',
+          '--retcode-passthrough',
+          '--config-dir=/tmp/kitchen/etc/salt',
+          '--file-root=/tmp/kitchen/srv/salt',
+          ("--state_output=#{config[:state_output]}" if config[:state_output]),
+          'state.highstate'
+        ].join(' ')
       end
 
       private
 
-      def cp(src, dest)
-        tree = dest
-        tree = File.dirname(dest) if File.file?(src)
-        FileUtils.mkdir_p(tree)
-        FileUtils.copy_entry(src, dest, remove_destination: true)
+      def pave
+        ['/srv/salt', '/srv/pillar', '/etc/salt'].each do |p|
+          target = File.join(sandbox_path, p)
+          FileUtils.rm_rf target
+        end
       end
 
-      def state_tree_destination
-        File.join(sandbox_path, '/srv/salt')
+      def copy_state_tree
+        src = File.expand_path(config[:local_state_tree])
+        dest = File.join(sandbox_path, '/srv/salt')
+        FileUtils.mkdir_p(dest)
+        FileUtils.cp_r("#{src}/.", dest)
       end
 
-      def state_tree_source
-        File.expand_path(config.fetch(:local_state_tree))
-      end
-
-      def pillar_roots_destination
-        File.join(sandbox_path, '/srv/pillar')
-      end
-
-      def pillar_roots_source
-        File.expand_path(config.fetch(:local_pillar_roots))
-      end
-
-      def minion_config_source
-        File.expand_path(config.fetch(:minion_config))
-      end
-
-      def minion_config_destination
-        File.join(sandbox_path, '/etc/salt/minion')
+      def copy_minion_config
+        src = File.expand_path(config[:minion_config])
+        FileUtils.mkdir_p(File.join(sandbox_path, 'etc/salt'))
+        FileUtils.cp(src, File.join(sandbox_path, '/etc/salt/minion'))
       end
     end
   end
