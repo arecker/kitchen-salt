@@ -6,15 +6,27 @@ module Kitchen
     # Salt Kitchen Provisioner
     class Salt < Base
       def install_command
-        '[[ $(which salt-call) ]] || wget --quiet -O - https://bootstrap.saltstack.com | sudo sh'
+        info('Bootstrapping with salt')
+        [
+          '[[ $(which salt-call) ]]',
+          '|| wget --quiet -O - https://bootstrap.saltstack.com',
+          '| sudo sh'
+        ].join(' ')
       end
 
       def create_sandbox
         super
-        pave
-        copy_state_tree
-        copy_pillar_roots if config[:local_pillar_roots]
-        copy_minion_config if config[:minion_config]
+        create_tree
+        copy_states if config[:local_state_tree]
+        copy_pillars if config[:local_pillar_roots]
+        copy_config if config[:minion_config]
+      end
+
+      def init_command
+        [
+          "#{sudo('rm')} -rf #{config[:root_path]}",
+          "mkdir -p #{config[:root_path]}"
+        ].join(' && ')
       end
 
       def run_command
@@ -31,31 +43,29 @@ module Kitchen
 
       private
 
-      def pave
-        ['/srv/salt', '/srv/pillar', '/etc/salt'].each do |p|
-          target = File.join(sandbox_path, p)
-          FileUtils.rm_rf target
+      def create_tree
+        %w(etc/salt srv).each do |directory|
+          target = File.join(sandbox_path, directory)
+          FileUtils.mkdir_p(target)
         end
       end
 
-      def copy_state_tree
+      def copy_states
         src = File.expand_path(config[:local_state_tree])
-        dest = File.join(sandbox_path, '/srv/salt')
-        FileUtils.mkdir_p(dest)
-        FileUtils.cp_r("#{src}/.", dest)
+        dst = File.join(sandbox_path, 'srv/salt')
+        FileUtils.copy_entry(src, dst)
       end
 
-      def copy_pillar_roots
+      def copy_pillars
         src = File.expand_path(config[:local_pillar_roots])
-        dest = File.join(sandbox_path, '/srv/pillar')
-        FileUtils.mkdir_p(dest)
-        FileUtils.cp_r("#{src}/.", dest)
+        dst = File.join(sandbox_path, 'srv/pillar')
+        FileUtils.copy_entry(src, dst)
       end
 
-      def copy_minion_config
+      def copy_config
         src = File.expand_path(config[:minion_config])
-        FileUtils.mkdir_p(File.join(sandbox_path, 'etc/salt'))
-        FileUtils.cp(src, File.join(sandbox_path, '/etc/salt/minion'))
+        dst = File.join(sandbox_path, 'etc/salt/minion')
+        FileUtils.copy_entry(src, dst)
       end
     end
   end
