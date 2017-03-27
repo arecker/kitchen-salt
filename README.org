@@ -1,1 +1,14 @@
 #+TITLE: Kitchen Salt v2: Electric Boogaloo
+
+This is a much simpler kitchen-salt driver.  The configuration is
+inspired by the [[https://www.packer.io/docs/provisioners/salt-masterless.html][packer salt provisioner]], which is much easier to work
+with.  Just specify the path to your local salt tree and pillar tree
+and you are good to go!
+
+#+BEGIN_SRC yaml
+  provisioner:
+    name: salt
+    local_state_tree: ./salt
+    local_pillar_roots: ./pillar
+    state_output: mixed
+#+END_SRC
