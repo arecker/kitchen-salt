@@ -19,9 +19,10 @@ And run =bundle install=
 These are the only options supported right now.
 
 #+BEGIN_SRC yaml
-  provisioner:
-    name: salt
-    local_state_tree: ./salt
-    local_pillar_roots: ./pillar
-    state_output: mixed
+    provisioner:
+      name: salt
+      local_state_tree: ./salt
+      local_pillar_roots: ./pillar
+      state_output: mixed
+      minion_config: path/to/minion/config
 #+END_SRC
