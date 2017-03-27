@@ -4,6 +4,20 @@ This is a much simpler kitchen-salt provisioner.  The configuration is
 inspired by the [[https://www.packer.io/docs/provisioners/salt-masterless.html][packer salt provisioner]].  Just specify the path to
 your local salt tree and pillar tree and you are good to go!
 
+* Installation
+
+Put these words in your Gemfile
+
+#+BEGIN_EXAMPLE
+  gem 'kitchen-salt', git: 'https://github.com/arecker/kitchen-salt.git'
+#+END_EXAMPLE
+
+And run =bundle install=
+
+* Configuring
+
+These are the only options supported right now.
+
 #+BEGIN_SRC yaml
   provisioner:
     name: salt
