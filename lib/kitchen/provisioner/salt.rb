@@ -30,6 +30,7 @@ module Kitchen
       end
 
       def run_command
+        info('Executing salt')
         [
           'sudo salt-call --local',
           '--retcode-passthrough',

@@ -1,28 +1,33 @@
 #+TITLE: Kitchen Salt v2: Electric Boogaloo
 
-This is a much simpler kitchen-salt provisioner.  The configuration is
-inspired by the [[https://www.packer.io/docs/provisioners/salt-masterless.html][packer salt provisioner]].  Just specify the path to
-your local salt tree and pillar tree and you are good to go!
+This is a much simpler kitchen-salt provisioner, inspired by the
+[[https://www.packer.io/docs/provisioners/salt-masterless.html][packer implementation]].
 
 * Installation
 
-Put these words in your Gemfile
+Put these words in your Gemfile and run =bundle install=.
 
 #+BEGIN_EXAMPLE
   gem 'kitchen-salt', git: 'https://github.com/arecker/kitchen-salt.git'
 #+END_EXAMPLE
-
-And run =bundle install=
 
 * Configuring
 
 These are the only options supported right now.
 
 #+BEGIN_SRC yaml
-    provisioner:
-      name: salt
-      local_state_tree: ./salt
-      local_pillar_roots: ./pillar
-      state_output: mixed
-      minion_config: path/to/minion/config
+  provisioner:
+    name: salt
+
+    # Path to local state tree (including top.sls)
+    local_state_tree: ./salt
+
+    # Path to local pillar tree (including top.sls)
+    local_pillar_roots: ./pillar
+
+    # Path to minion config (you can put grains here too)
+    minion_config: path/to/minion/config
+
+    # Output of salt-call state.highstate
+    state_output: mixed
 #+END_SRC
