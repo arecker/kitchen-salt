@@ -6,17 +6,9 @@ module Kitchen
     # Salt Kitchen Provisioner
     class Salt < Base
       def install_command
-        install_salt = [
-          '[[ $(which salt-call) ]]',
-          '|| wget --quiet -O - https://bootstrap.saltstack.com',
-          '| sudo sh'
-        ].join(' ')
-        install_chef = [
-          '[[ $(which chef-client) ]]',
-          '|| wget --quiet -O - https://www.getchef.com/chef/install.sh',
-          '| sudo sh'
-        ]
-        "#{install_salt} && #{install_chef}"
+        install_salt = '[[ $(which salt-call) ]] || wget --quiet -O - https://bootstrap.saltstack.com | sudo sh'
+        install_chef = '[[ $(which chef-client) ]] || wget --quiet -O - https://www.getchef.com/chef/install.sh | sudo sh'
+        [install_salt, install_chef].join("\n")
       end
 
       def create_sandbox
