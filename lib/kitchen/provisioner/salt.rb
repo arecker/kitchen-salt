@@ -12,7 +12,8 @@ module Kitchen
           '| sudo sh'
         ].join(' ')
         install_chef = [
-          'wget --quiet -O https://www.getchef.com/chef/install.sh',
+          '[[ $(which chef-client) ]]',
+          '|| wget --quiet -O - https://www.getchef.com/chef/install.sh',
           '| sudo sh'
         ]
         "#{install_salt} && #{install_chef}"
