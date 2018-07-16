@@ -35,7 +35,7 @@ module Kitchen
           '--file-root=/tmp/kitchen/srv/salt',
           '--pillar-root=/tmp/kitchen/srv/pillar',
           ("--state_output=#{config[:state_output]}" if config[:state_output]),
-          'state.highstate'
+          config.fetch(:custom_state, 'state.highstate').to_s
         ].join(' ')
       end
 
