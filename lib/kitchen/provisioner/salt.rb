@@ -28,6 +28,14 @@ module Kitchen
 
       def run_command
         info('Executing salt')
+        command = build_command
+        debug("COMMAND: #{command}")
+        command
+      end
+
+      private
+
+      def build_command
         [
           'sudo salt-call --local',
           '--retcode-passthrough',
@@ -35,11 +43,9 @@ module Kitchen
           '--file-root=/tmp/kitchen/srv/salt',
           '--pillar-root=/tmp/kitchen/srv/pillar',
           ("--state_output=#{config[:state_output]}" if config[:state_output]),
-          config.fetch(:custom_state, 'state.highstate').to_s
+          config[:custom_state] ? "state.sls #{config[:custom_state]}" : 'state.highstate'
         ].join(' ')
       end
-
-      private
 
       def create_tree
         %w(etc/salt srv).each do |directory|
