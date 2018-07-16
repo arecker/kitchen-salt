@@ -30,4 +30,7 @@ These are the only options supported right now.
 
     # Output of salt-call state.highstate
     state_output: mixed
+
+    # state to run, otherwise defaults to state.highstate
+    custom_state: state.highstate
 #+END_SRC
